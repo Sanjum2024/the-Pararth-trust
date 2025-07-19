@@ -1,0 +1,54 @@
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const DonationPage = () => {
+  const [amount, setAmount] = useState('');
+
+  const handleDonate = async () => {
+    if (!amount) return alert('Enter amount');
+
+    const { data } = await axios.post('http://localhost:5000/create-order', { amount });
+
+    const options = {
+      key: 'YOUR_RAZORPAY_KEY_ID',
+      amount: data.amount,
+      currency: data.currency,
+      name: 'The Pararth Trust',
+      description: 'Donation',
+      order_id: data.id,
+      handler: function (response) {
+        alert('Payment Successful: ' + response.razorpay_payment_id);
+      },
+      prefill: {
+        name: '',
+        email: '',
+        contact: '',
+      },
+      theme: {
+        color: '#3399cc',
+      },
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  };
+
+  return (
+    <div style={{ textAlign: 'center', padding: '2rem' }}>
+      <h2>Donate to The Pararth Trust</h2>
+      <input
+        type="number"
+        placeholder="Enter amount (INR)"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
+        style={{ padding: '0.5rem', fontSize: '1rem' }}
+      />
+      <br /><br />
+      <button onClick={handleDonate} style={{ padding: '0.6rem 1.2rem', fontSize: '1rem' }}>
+        Donate
+      </button>
+    </div>
+  );
+};
+
+export default DonationPage;
